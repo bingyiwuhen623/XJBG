@@ -70,6 +70,8 @@
     <Compile Include="Assets\Scripts\Base\ResourcesPool.cs" />
     <Compile Include="Assets\Scripts\Base\Singletion.cs" />
     <Compile Include="Assets\Scripts\Base\StartGame.cs" />
+    <Compile Include="Assets\Scripts\Table\TableBase.cs" />
+    <Compile Include="Assets\Scripts\Table\TableManager.cs" />
     <Compile Include="Assets\Scripts\Tween\TweenBase.cs" />
     <Compile Include="Assets\Scripts\Tween\TweenFloat.cs" />
     <Compile Include="Assets\Scripts\Tween\TweenMgr.cs" />
@@ -92,6 +94,10 @@
     <Compile Include="Assets\Scripts\UI\LoginPanel.cs" />
     <Compile Include="Assets\Scripts\UI\MainPanel.cs" />
     <Compile Include="Assets\Scripts\UI\TopMoneyPanel.cs" />
+    <Compile Include="Assets\Scripts\Utils\BitSet.cs" />
+    <Compile Include="Assets\Scripts\Utils\ObjectCopier.cs" />
+    <Compile Include="Assets\Scripts\Utils\ParameterDef.cs" />
+    <Compile Include="Assets\Scripts\Utils\Utils.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>E:/XJBG/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
@@ -313,6 +319,9 @@
     </Reference>
     <Reference Include="Unity.Analytics.Tracker">
       <HintPath>E:/XJBG/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
+    </Reference>
+    <Reference Include="LitJson">
+      <HintPath>E:/XJBG/Assets/Plugins/Json/LitJson/LitJson.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>D:/Unity2018.3.3f1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
