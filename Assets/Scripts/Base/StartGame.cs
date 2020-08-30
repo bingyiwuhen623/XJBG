@@ -7,7 +7,7 @@ using XJBG.UI;
 
 namespace XJBG.Base
 {
-    public class StartGame : SingletionMonoBehaviourNoCreate<StartGame>
+    public class StartGame : SingletonMonoBehaviourNoCreate<StartGame>
     {
         [SerializeField] public Camera UICamera;
         [SerializeField] public Light MainLight;

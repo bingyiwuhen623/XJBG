@@ -18,7 +18,7 @@ namespace XJBG.UI
     /// <summary>
     /// 仅用来动态加载UI
     /// </summary>
-    public class UIManager : Singletion<UIManager>
+    public class UIManager : Singleton<UIManager>
     {
         private Transform uiParent;
         private Dictionary<UIType, string> allLoadPrefabsPath;

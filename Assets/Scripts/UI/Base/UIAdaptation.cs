@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIAdaptation : Singletion<UIAdaptation>
+public class UIAdaptation : Singleton<UIAdaptation>
 {
     public int ScreenWidth = GameDefine.NORMAL_SCREEN_WIDTH;
     // 游戏内的画面高度均为1080，宽度为计算所得

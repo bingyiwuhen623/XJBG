@@ -80,7 +80,7 @@ public enum LoopType
     /// </summary>
     PingPong
 }
-public class TweenMgr : SingletionMonoBehaviour<TweenMgr>
+public class TweenMgr : SingletonMonoBehaviour<TweenMgr>
 {
     Dictionary<Type, List<TweenBase>> mAllTweenDic;
 

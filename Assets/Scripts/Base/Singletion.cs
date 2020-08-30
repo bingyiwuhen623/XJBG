@@ -2,7 +2,7 @@
 using System;
 
 [Serializable]
-public class Singletion<T> where T : class, new()
+public class Singleton<T> where T : class, new()
 {
     static T this_obj;
 
@@ -38,7 +38,7 @@ public class Singletion<T> where T : class, new()
 /// 此类可以挂载
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class SingletionMonoBehaviourNoCreate<T> : MonoBehaviour where T : SingletionMonoBehaviourNoCreate<T>
+public abstract class SingletonMonoBehaviourNoCreate<T> : MonoBehaviour where T : SingletonMonoBehaviourNoCreate<T>
 {
     private static T this_obj = null;
     public static T Me
@@ -83,7 +83,7 @@ public abstract class SingletionMonoBehaviourNoCreate<T> : MonoBehaviour where T
 /// 此类不可挂载
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class SingletionMonoBehaviour<T> : MonoBehaviour where T : SingletionMonoBehaviour<T>
+public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : SingletonMonoBehaviour<T>
 {
     private static T this_obj = null;
 

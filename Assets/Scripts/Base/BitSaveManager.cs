@@ -11,7 +11,7 @@ public enum BitSaveType
 /// <summary>
 /// 解锁提示存储管理
 /// </summary>
-public class BitSaveManager : Singletion<BitSaveManager>
+public class BitSaveManager : Singleton<BitSaveManager>
 {
     // 64位，每一位存储一个类型对应的值，0或1，多于64位的时候bitSave长度大于1
     private List<long> bitSave;
