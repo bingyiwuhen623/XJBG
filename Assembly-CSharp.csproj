@@ -70,7 +70,9 @@
     <Compile Include="Assets\Scripts\Base\ResourcesPool.cs" />
     <Compile Include="Assets\Scripts\Base\Singletion.cs" />
     <Compile Include="Assets\Scripts\Base\StartGame.cs" />
-    <Compile Include="Assets\Scripts\Table\TableBase.cs" />
+    <Compile Include="Assets\Scripts\Table\BuildTableBytes.cs" />
+    <Compile Include="Assets\Scripts\Table\Data\TableItem.cs" />
+    <Compile Include="Assets\Scripts\Table\Table.cs" />
     <Compile Include="Assets\Scripts\Table\TableManager.cs" />
     <Compile Include="Assets\Scripts\Tween\TweenBase.cs" />
     <Compile Include="Assets\Scripts\Tween\TweenFloat.cs" />
@@ -311,6 +313,9 @@
     <Reference Include="UnityEngine.SpatialTracking">
       <HintPath>D:/Unity2018.3.3f1/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
+    <Reference Include="LitJson">
+      <HintPath>E:/XJBG/Assets/Plugins/Json/LitJson/LitJson.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Analytics.Editor">
       <HintPath>E:/XJBG/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
     </Reference>
@@ -320,8 +325,11 @@
     <Reference Include="Unity.Analytics.Tracker">
       <HintPath>E:/XJBG/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
-    <Reference Include="LitJson">
-      <HintPath>E:/XJBG/Assets/Plugins/Json/LitJson/LitJson.dll</HintPath>
+    <Reference Include="Excel">
+      <HintPath>E:/XJBG/Assets/Plugins/Excel/Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus">
+      <HintPath>E:/XJBG/Assets/Plugins/Excel/EPPlus.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>D:/Unity2018.3.3f1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
