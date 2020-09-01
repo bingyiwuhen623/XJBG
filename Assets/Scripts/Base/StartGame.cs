@@ -15,6 +15,7 @@ namespace XJBG.Base
         [SerializeField] public StandaloneInputModule StandaloneInputModule;
         [SerializeField] public RectTransform PanelRoot;
         [HideInInspector] public UIAdaptation UIAdaptation;
+        [HideInInspector] public int mNumThreads;
 
         protected override void Init()
         {
