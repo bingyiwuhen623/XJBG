@@ -8,8 +8,6 @@ using System.Threading;
 using XJBG.Base;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
-using System.Data;
-using Excel;
 using System.Reflection;
 
 public delegate IEnumerator InitLoad(string strName);
@@ -30,11 +28,20 @@ public class Table<T> where T : new()
         }
     }
 
-    public Dictionary<int, T> Datas;
+    [NonSerialized] private static readonly string PROPERTY_ID = "ID";
+
+    public Dictionary<long, long> mIdIndexs;
+    public T[] mDatas;
 
     private void Init()
     {
-        Datas = new Dictionary<int, T>();
+        mIdIndexs = new Dictionary<long, long>();
+    }
+
+    public T GetById(long id)
+    {
+        long index = mIdIndexs[id];
+        return mDatas[index];
     }
 
     public IEnumerator DeSerializable(string name)
@@ -85,33 +92,14 @@ public class Table<T> where T : new()
 #endif
     }
 
+    /// <summary>
+    /// 反序列化
+    /// </summary>
+    /// <param name="json"></param>
     private void DeSerializableJson(string json)
     {
-        T[] tables = JsonMapper.ToObject<T[]>(json);
-        PropertyInfo idProp = null;
-        PropertyInfo[] propInfos = typeof(T).GetProperties();
-        for (int i = 0; i < propInfos.Length; i++)
-        {
-            string name = propInfos[i].Name;
-            if (name.Equals("ID") || name.Equals("id") || name.Equals("Id"))
-            {
-                idProp = propInfos[i];
-            }
-        }
-        if (idProp == null)
-        {
-            Debug.LogError("该表无ID列：" + typeof(T));
-        }
-        int index = 0;
-        foreach (T table in tables)
-        {
-            int id = index;
-            if (idProp != null)
-            {
-                id = int.Parse(idProp.GetValue(table).ToString());
-            }
-            Datas.Add(id, table);
-        }
+        mDatas = JsonMapper.ToObject<T[]>(json);
+        Sort();
     }
 
     /// <summary>
@@ -119,78 +107,144 @@ public class Table<T> where T : new()
     /// </summary>
     public void SerializeNow(string name)
     {
-        //FileStream fileStream;
         BinaryFormatter bft;
 
         LoadDirectly(name);
-
+        
         string strSerializePath = Application.streamingAssetsPath + "/DataBytes/";
         ParameterDef.CreateDirectory(strSerializePath);
         string strBytesFile = strSerializePath + name + ".bytes";
 
         MemoryStream msData = new MemoryStream();
         bft = new BinaryFormatter();
-        bft.Serialize(msData, JsonMapper.ToJson(Datas));
+        bft.Serialize(msData, JsonMapper.ToJson(mDatas));
 
         ParameterDef.CreateEncryptFile(msData, strBytesFile);
     }
 
     public void LoadDirectly(string strName, bool bIsResource = false)
     {
-        DataSet result = null;
+        TextAsset textAsset = null;
 #if UNITY_EDITOR
-        string xlsxPath = Application.dataPath + "/DataExcel/" + strName + ".xlsx";
-        Debug.Log("xlsxPath:" + xlsxPath);
-        FileStream fileStream = File.Open(xlsxPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-        IExcelDataReader excelReader = ExcelReaderFactory.CreateOpenXmlReader(fileStream);
-        result = excelReader.AsDataSet();
-        excelReader.Close();
+        string strAssetPath = "Assets/DataExcel/" + strName + ".csv";
+        textAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(strAssetPath);
 #endif
-        if (null == result)
+        if (null == textAsset)
         {
             Debug.LogError("Table<" + typeof(T).Name + "> Load Failed.");
             return;
         }
-        LoadDirectlyStr(result, strName);
+        string strAllContent = textAsset.text;
+        LoadDirectlyStr(strAllContent);
     }
 
-    public void LoadDirectlyStr(DataSet dataSet, string name)
+    public void LoadDirectlyStr(string strAllContent)
     {
-        DataTable firstTable = dataSet.Tables[0];
-        // 第一行数据，列名
-        DataRow firstRow = firstTable.Rows[0];
-        string[] names = new string[firstRow.ItemArray.Length];
-        for (int i = 0; i < firstRow.ItemArray.Length; i++)
-        {
-            names[i] = firstRow[i].ToString();
-        }
 
-        int column = firstTable.Columns.Count;
-        int row = firstTable.Rows.Count;
-        Debug.LogWarning(column + "  " + row);
-        for (int i = 1; i < row; i++)
+        char[] trimChars = new char[] { '\r', '\n', ',', ' ' };
+        char[] trimReturnChars = new char[] { '\r', '\n' };
+        
+        string[] lines = strAllContent.Split('\n');
+        string[] names = lines[0].Split(',');
+
+        int iRowCount = lines.Length;
+        Debug.Log("LoadDirectlyStr: iRowCount(" + iRowCount + ")");
+        mDatas = new T[iRowCount - 1];
+        for (int i = 0; i < names.Length; i++)
         {
-            DataRow singleRow = firstTable.Rows[i];
-            string[] singleValues = new string[singleRow.ItemArray.Length];
-            for (int j = 0; j < singleRow.ItemArray.Length; j++)
+            names[i] = names[i].TrimEnd(trimChars);
+            names[i] = names[i].TrimStart(trimChars);
+        }
+        for (int i = 1; i < iRowCount; i++)
+        {
+            string line = lines[i];
+            line = line.TrimEnd(trimReturnChars);
+            if (line.Length == 0)
             {
-                singleValues[j] = singleRow[j].ToString();
+                continue;
+            }
+            string[] values = line.Split(',');
+
+            if (values.Length != names.Length)
+            {
+                Debug.LogWarning("names(" + names.Length + "),values(" + values.Length + ")_" + line);
             }
 
-            T item = GetItemByData(names, singleValues, i);
+            for (int j = 0; j < values.Length; j++)
+            {
+                values[j] = values[j].TrimEnd(trimChars);
+                values[j] = values[j].TrimStart(trimChars);
+            }
+            mDatas[i - 1] = GetItemFromNames(names, values, i);
+        }
+        Sort();
 
-            int id = int.Parse(singleValues[0].ToString());
-            Datas.Add(id, item);
+        Debuger.Log(typeof(T).Name + " has loaded!");
+    }
+
+    private void Sort()
+    {
+        PropertyInfo info = typeof(T).GetProperty(PROPERTY_ID);
+        if (info == null)
+        {
+            Debug.LogError("表格错误，没有ID列:" + typeof(T));
+            return;
+        }
+        List<T> a = new List<T>();
+        for (int i = 0; i < mDatas.Length; i++)
+        {
+            T t = mDatas[i];
+            if (t != null)
+                a.Add(t);
+        }
+        a.Sort(CompareT);
+        mDatas = a.ToArray();
+
+        int index = 0;
+        foreach (T data in mDatas)
+        {
+            long id = Convert.ToInt64(info.GetValue(data, null));
+            mIdIndexs.Add(id, index);
+            index++;
         }
     }
 
-    private T GetItemByData(string[] names, string[] values, int iRow)
+    public int CompareT(T x, T y)
+    {
+        PropertyInfo info = typeof(T).GetProperty(PROPERTY_ID);
+        long xid = Convert.ToInt64(info.GetValue(x, null));
+        long yid = Convert.ToInt64(info.GetValue(y, null));
+        int iReturn = 0;
+        if (xid > yid)
+        {
+            iReturn = 1;
+        }
+        else if (xid < yid)
+        {
+            iReturn = -1;
+        }
+        return iReturn;
+    }
+
+    private int GetPropertyIndexFromName(string strPropName, string[] aNames)
+    {
+        for (int i = 0; i < aNames.Length; i++)
+        {
+            if (0 == aNames[i].CompareTo(strPropName))
+            {
+                return i;
+            }
+            else if (i >= aNames.Length - 1)
+            {
+                //Debug.LogWarning("Error! GetPropertyIndexFromName:propName(" + strPropName + ")");
+            }
+        }
+        return -1;
+    }
+
+    private T GetItemFromNames(string[] names, string[] values, int iRow)
     {
         T item = new T();
-
-        //string strIdValue = GetStringByPropertyName("Id", names, values);
-        //Debug.Log("strIdValue = " + strIdValue);
-        //int id = int.Parse(strIdValue);
         PropertyInfo[] propInfos = typeof(T).GetProperties();
 
         string strValue = null;
@@ -198,8 +252,7 @@ public class Table<T> where T : new()
         for (int x = 0; x < propInfos.Length; ++x)
         {
             PropertyInfo info = propInfos[x];
-
-            //string strValue = GetStringByPropertyName(info.Name, names, values);
+            
             strValue = null;
             int iPropIndex = GetPropertyIndexFromName(info.Name, names);
             if (iPropIndex >= 0)
@@ -236,7 +289,6 @@ public class Table<T> where T : new()
                     else if (info.PropertyType == typeof(int) ||
                              info.PropertyType == typeof(System.Int32))
                     {
-                        //Debuger.Log("strValue(" + strValue + "),info(" + info.Name + ")");
                         int value = int.Parse(strValue);
                         info.SetValue(item, value, null);
                     }
@@ -296,21 +348,5 @@ public class Table<T> where T : new()
             }
         }
         return item;
-    }
-
-    int GetPropertyIndexFromName(string strPropName, string[] aNames)
-    {
-        for (int i = 0; i < aNames.Length; i++)
-        {
-            if (0 == aNames[i].CompareTo(strPropName))
-            {
-                return i;
-            }
-            else if (i >= aNames.Length - 1)
-            {
-                //Debug.LogWarning("Error! GetPropertyIndexFromName:propName(" + strPropName + ")");
-            }
-        }
-        return -1;
     }
 }

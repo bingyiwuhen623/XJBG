@@ -11,7 +11,7 @@ public class BuildTableBytes
     public static void BuildBytes()
     {
         mTableNames = new Dictionary<string, Action<string>>();
-        AddName("TableItem", Table<TableItem>.Me.SerializeNow);
+        AddName("TableItem", TableItem.Me.SerializeNow);
 
         DeSerializableBytes();
     }

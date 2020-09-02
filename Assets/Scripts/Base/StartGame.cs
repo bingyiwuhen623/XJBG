@@ -30,10 +30,10 @@ namespace XJBG.Base
         private IEnumerator LoadResources()
         {
             LoadingMgr.Me.Show();
-            // 此处为提前加载各种模型
-            yield return new WaitForSecondsRealtime(1);
+            TableManager.Me.Init();
+            // 此处为提前加载各种模型表格
+            yield return TableManager.Me.DeSerializableBytes(ShowFirstPanel);
             LoadingMgr.Me.Hide();
-            ShowFirstPanel();
         }
 
         private void ShowFirstPanel()

@@ -20,6 +20,7 @@ namespace XJBG.UI
 
         protected override void onShow()
         {
+            Debug.Log(TableItem.Me.GetById(1).Name);
             tween = TweenMgr.Me.Move(img.transform, Vector3.zero, new Vector3(500, 300, 0), 3f, EaseType.Spring, LoopType.Loop, -1);
             StartGame.Me.StartCoroutine(StopTween());
         }
