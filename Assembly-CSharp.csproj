@@ -325,12 +325,6 @@
     <Reference Include="Unity.Analytics.Tracker">
       <HintPath>E:/XJBG/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
-    <Reference Include="Excel">
-      <HintPath>E:/XJBG/Assets/Plugins/Excel/Excel.dll</HintPath>
-    </Reference>
-    <Reference Include="EPPlus">
-      <HintPath>E:/XJBG/Assets/Plugins/Excel/EPPlus.dll</HintPath>
-    </Reference>
     <Reference Include="netstandard">
       <HintPath>D:/Unity2018.3.3f1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
     </Reference>
