@@ -141,11 +141,11 @@ public class Table<T> where T : new()
     public void LoadDirectlyStr(string strAllContent)
     {
 
-        char[] trimChars = new char[] { '\r', '\n', ',', ' ' };
+        char[] trimChars = new char[] { '\r', '\n', '\t', ' ' };
         char[] trimReturnChars = new char[] { '\r', '\n' };
         
         string[] lines = strAllContent.Split('\n');
-        string[] names = lines[0].Split(',');
+        string[] names = lines[0].Split('\t');
 
         int iRowCount = lines.Length;
         Debug.Log("LoadDirectlyStr: iRowCount(" + iRowCount + ")");
@@ -163,7 +163,7 @@ public class Table<T> where T : new()
             {
                 continue;
             }
-            string[] values = line.Split(',');
+            string[] values = line.Split('\t');
 
             if (values.Length != names.Length)
             {
