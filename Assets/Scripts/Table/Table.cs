@@ -62,7 +62,7 @@ public class Table<T> where T : new()
         Interlocked.Increment(ref StartGame.Me.mNumThreads);
         ThreadPool.QueueUserWorkItem(ProcessTableDataFileFormat, www.bytes);
 #else
-        ProcessTableDataFileFormat(bytesData);
+        ProcessTableDataFileFormat(www.bytes);
 #endif
         www = null;
     }
