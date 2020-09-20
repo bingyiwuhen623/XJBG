@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using XJBG.Base;
+using System;
 
 namespace XJBG.UI
 {
@@ -10,10 +11,10 @@ namespace XJBG.UI
     /// </summary>
     public enum UIType
     {
-        None,   // 无界面
-        LoginPanel,// 登录界面
-        MainPanel,//游戏激活后界面
-        TopMoney,   //货币栏
+        None,       // 无界面
+        LoginPanel, // 登录界面
+        MainPanel,  // 主界面
+        TopMoney,   // 货币栏
     }
     /// <summary>
     /// 仅用来动态加载UI
@@ -82,7 +83,7 @@ namespace XJBG.UI
         {
             AddPath(UIType.LoginPanel, "Prefabs/UI/LoginPanel");
             AddPath(UIType.MainPanel, "Prefabs/UI/MainPanel");
-            AddPath(UIType.TopMoney, "Prefabs/UI/TopMoneyPanel");
+            AddPath(UIType.TopMoney, "Prefabs/UI/TopMoney");
         }
         private void AddPath(UIType type, string path)
         {
@@ -102,14 +103,14 @@ namespace XJBG.UI
         {
             if (uiParent != null)
             {
-                Object.DestroyImmediate(uiParent.gameObject);
+                UnityEngine.Object.DestroyImmediate(uiParent.gameObject);
             }
             GameObject go = parent.gameObject;
             uiParent = go.transform;
             int childCount = uiParent.childCount;
             for (int i = 0; i < childCount; i++)
             {
-                Object.DestroyImmediate(uiParent.GetChild(0).gameObject);
+                UnityEngine.Object.DestroyImmediate(uiParent.GetChild(0).gameObject);
             }
         }
         /// <summary>
@@ -118,10 +119,10 @@ namespace XJBG.UI
         /// <typeparam name="T"></typeparam>
         /// <param name="type"></param>
         /// <returns></returns>
-        public T ShowUIByPath<T>(UIType type) where T : UIBase, new()
+        public void ShowUIByPath(UIType type)
         {
             bool needAddBack = !unBackList.Contains(type);
-            return ShowUIByPath<T>(type, needAddBack);
+            ShowUIByPath(type, needAddBack);
         }
         /// <summary>
         /// 进入界面
@@ -130,16 +131,18 @@ namespace XJBG.UI
         /// <param name="type"></param>
         /// <param name="needAddBack">是否需要加入返回列表，前进为true，后退为false</param>
         /// <returns></returns>
-        private T ShowUIByPath<T>(UIType type, bool needAddBack = true) where T : UIBase, new()
+        private void ShowUIByPath(UIType type, bool needAddBack = true)
         {
-            T canvasUI;
+            //Type classType = Type.GetType(type.ToString());
+            //UIBase canvasUI = (UIBase)Activator.CreateInstance(classType);
+            UIBase canvasUI;
             if (allLoadedUI.ContainsKey(type))
             {
-                canvasUI = allLoadedUI[type] as T;
+                canvasUI = allLoadedUI[type];
             }
             else
             {
-                canvasUI = LoadUIByPath<T>(type);
+                canvasUI = LoadUIByPath(type);
             }
             //备用日志，勿删，出bug时使用
             //Debuger.LogWarning("needAddBack(" + needAddBack + "), lastShowPanel(" + lastShowPanel + ")");
@@ -154,7 +157,6 @@ namespace XJBG.UI
             canvasGo.SetActive(true);
             canvasUI.Show(lastSortOrder++);
             PanelTools.ResetRectTransform(canvasGo.GetComponent<RectTransform>());
-            return canvasUI;
         }
         /// <summary>
         /// 动态加载UI，预制件带Canvas
@@ -162,12 +164,14 @@ namespace XJBG.UI
         /// <param name="type">要加载的ui类型</param>
         /// <param name="parent">父级</param>
         /// <param name="sortingOrder">层级</param>
-        private T LoadUIByPath<T>(UIType type) where T : UIBase, new()
+        private UIBase LoadUIByPath(UIType type)
         {
             string path = allLoadPrefabsPath[type];
             GameObject prefab = Resources.Load<GameObject>(path);
             GameObject canvasGo = GameObject.Instantiate(prefab, uiParent);
-            T canvasUI = new T();
+            string className = Enum.GetName(typeof(UIType), type);
+            string classNameSpace = typeof(UIBase).Namespace;
+            UIBase canvasUI = Extend.Create_Object_By_Class_Name<UIBase>(classNameSpace + "." + className);
             canvasUI.Init(canvasGo);
             allLoadedUI.Add(type, canvasUI);
             return canvasUI;
@@ -194,7 +198,7 @@ namespace XJBG.UI
         public void ReturnMainPanel()
         {
             ClearBackList();
-            ShowUIByPath<LoginPanel>(UIType.LoginPanel);
+            ShowUIByPath(UIType.LoginPanel);
         }
         /// <summary>
         /// 清理返回列表
@@ -247,7 +251,7 @@ namespace XJBG.UI
             }
             else
             {
-                UIBase uiBase = LoadUIByPath<T>(type);
+                UIBase uiBase = LoadUIByPath(type);
                 uiBase.GameObject.SetActive(false);
                 return uiBase as T;
             }
@@ -276,7 +280,7 @@ namespace XJBG.UI
             }
             else
             {
-                ShowUIByPath<UIBase>(type, false);
+                ShowUIByPath(type, false);
             }
             //备用日志，勿删，出bug时使用
             //Debuger.LogWarning("BackToLast:UIType(" + type + ")");

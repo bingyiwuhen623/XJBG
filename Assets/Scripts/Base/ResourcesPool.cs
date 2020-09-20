@@ -1,4 +1,5 @@
-﻿using System;
+﻿using XJBG;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -71,6 +72,15 @@ public class ResourcesPool : MonoBehaviour
     }
 
     /// <summary>
+    /// 战斗前加载
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator BeforeBattle()
+    {
+        yield return new WaitForSecondsRealtime(0.1f);
+    }
+
+    /// <summary>
     /// 加载特殊模型
     /// </summary>
     /// <param name="path"></param>
@@ -91,7 +101,7 @@ public class ResourcesPool : MonoBehaviour
     /// <typeparam name="T"></typeparam>
     /// <param name="path"></param>
     /// <returns></returns>
-    public T UseByPath<T>(string path, Transform parent = null) where T : Component
+    public GameObject UseByPath(string path, Transform parent = null)
     {
         GameObject obj;
         CheckPathDics(path);
@@ -112,7 +122,7 @@ public class ResourcesPool : MonoBehaviour
             PanelTools.ResetTrans(obj.transform);
         }
         obj.SetActive(true);
-        return obj.GetComponent<T>();
+        return obj;
     }
 
     /// <summary>
@@ -216,10 +226,10 @@ public class ResourcesPool : MonoBehaviour
     /// <param name="type"></param>
     /// <param name="path"></param>
     /// <returns></returns>
-    public T Use<T>(ResourceType type, string path, Transform parent = null) where T : Component
+    public GameObject Use(ResourceType type, string path, Transform parent = null)
     {
         SinglePool pool = pools[type];
-        return pool.Use<T>(path, parent);
+        return pool.Use(path, parent);
     }
 
     /// <summary>
@@ -229,10 +239,10 @@ public class ResourcesPool : MonoBehaviour
     /// <param name="type"></param>
     /// <param name="path"></param>
     /// <returns></returns>
-    public T Use<T>(ResourceType type, GameObject go, Transform parent = null) where T : Component
+    public GameObject Use(ResourceType type, GameObject go, Transform parent = null)
     {
         SinglePool pool = pools[type];
-        return pool.Use<T>(go, parent);
+        return pool.Use(go, parent);
     }
 
     /// <summary>
@@ -303,7 +313,10 @@ public class SinglePool
     /// <returns></returns>
     public async Task Load(string path)
     {
+        System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+        watch.Start();
         GameObject resourceGo = await ResourcesCustom.Me.LoadAsync<GameObject>(path);
+        watch.Stop();
         Load(resourceGo);
     }
     /// <summary>
@@ -325,7 +338,7 @@ public class SinglePool
     /// <param name="path"></param>
     /// <param name="parent"></param>
     /// <returns></returns>
-    public T Use<T>(string path, Transform parent = null) where T : Component
+    public GameObject Use(string path, Transform parent = null)
     {
         GameObject obj;
         if (UnUse.Count > 0)
@@ -344,7 +357,7 @@ public class SinglePool
             PanelTools.ResetTrans(obj.transform);
         }
         obj.SetActive(true);
-        return obj.GetComponent<T>();
+        return obj;
     }
     /// <summary>
     /// 使用，从对象池里拿出来
@@ -353,7 +366,7 @@ public class SinglePool
     /// <param name="path"></param>
     /// <param name="parent"></param>
     /// <returns></returns>
-    public T Use<T>(GameObject go, Transform parent = null) where T : Component
+    public GameObject Use(GameObject go, Transform parent = null)
     {
         GameObject obj;
         if (UnUse.Count > 0)
@@ -372,7 +385,7 @@ public class SinglePool
             PanelTools.ResetTrans(obj.transform);
         }
         obj.SetActive(true);
-        return obj.GetComponent<T>();
+        return obj;
     }
     /// <summary>
     /// 重置，使用完后，不销毁，存回池里
